@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Explore Wild Park - An interactive 3D national park catalog, ticketing portal, food chain simulator, and animal adoption platform.">
+  <title>Wild Park - Premium Interactive Wildlife Sanctuary</title>
+  <link rel="stylesheet" href="styles.css">
+  <!-- Lucide Icons for clean UI symbols -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Three.js and OrbitControls for 3D renderings -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+</head>
+<body>
+
+  <div id="app-container">
+    <!-- Sidebar Navigation -->
+    <aside>
+      <div class="logo-container">
+        <div class="logo-icon">
+          <i data-lucide="compass"></i>
+        </div>
+        <div class="logo-text">
+          <h1>Wild Park</h1>
+          <p>National Sanctuary</p>
+        </div>
+      </div>
+
+      <nav>
+        <div class="nav-link active" data-target="dashboard-view">
+          <i data-lucide="layout-dashboard"></i>
+          <span>Dashboard</span>
+        </div>
+        <div class="nav-link" data-target="animals-view">
+          <i data-lucide="paw-print"></i>
+          <span>Animal Directory</span>
+        </div>
+        <div class="nav-link" data-target="foodchain-view">
+          <i data-lucide="git-branch"></i>
+          <span>3D Food Chain</span>
+        </div>
+        <div class="nav-link" data-target="map-view">
+          <i data-lucide="map"></i>
+          <span>Interactive Map</span>
+        </div>
+        <div class="nav-link" data-target="booking-view">
+          <i data-lucide="ticket"></i>
+          <span>Book Tickets</span>
+        </div>
+        <div class="nav-link" data-target="adopt-view">
+          <i data-lucide="heart"></i>
+          <span>Adopt & Donate</span>
+        </div>
+      </nav>
+
+      <!-- Sidebar Audio Toggle Widget -->
+      <div class="sidebar-footer">
+        <div class="audio-info">
+          <span class="audio-label">Ambient Audio</span>
+        </div>
+        <button class="audio-btn" id="audio-toggle-btn" title="Toggle Nature Sounds">
+          <i data-lucide="volume-x"></i>
+        </button>
+      </div>
+    </aside>
+
+    <!-- Main Workspace -->
+    <main>
+      
+      <!-- 1. DASHBOARD VIEW -->
+      <section id="dashboard-view" class="view-panel active">
+        <div class="section-header">
+          <h2>Sanctuary Overview</h2>
+          <p>Live telemetry and ecosystem metrics from the park boundaries.</p>
+        </div>
+
+        <div class="grid-dashboard">
+          <!-- Stat cards -->
+          <div class="glass-card col-3">
+            <div class="stat-container">
+              <div class="stat-icon"><i data-lucide="leaf"></i></div>
+              <div class="stat-info">
+                <h3>Total Species</h3>
+                <p id="stat-total-species">50</p>
+              </div>
+            </div>
+          </div>
+          <div class="glass-card col-3">
+            <div class="stat-container">
+              <div class="stat-icon secondary"><i data-lucide="activity"></i></div>
+              <div class="stat-info">
+                <h3>Total Population</h3>
+                <p id="stat-total-animals">174</p>
+              </div>
+            </div>
+          </div>
+          <div class="glass-card col-3">
+            <div class="stat-icon blue" style="display:none;"></div>
+            <div class="glass-card-inner">
+              <div class="stat-container">
+                <div class="stat-icon blue"><i data-lucide="shield-check"></i></div>
+                <div class="stat-info">
+                  <h3>Caretakers</h3>
+                  <p>6 Specialists</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="glass-card col-3">
+            <div class="stat-container">
+              <div class="stat-icon red"><i data-lucide="heart-handshake"></i></div>
+              <div class="stat-info">
+                <h3>Adoptions</h3>
+                <p id="stat-total-adoptions">12 Active</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Trophic Bar -->
+          <div class="glass-card col-8">
+            <h3>Ecosystem Balance</h3>
+            <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 12px;">
+              Distribution of species across trophic levels to ensure ecological stability.
+            </p>
+            <div class="ecosystem-summary">
+              <span style="color:#f43f5e">Apex (12%)</span>
+              <span style="color:#a855f7">Tertiary (14%)</span>
+              <span style="color:#e2b85c">Secondary (34%)</span>
+              <span style="color:#10b981">Primary (38%)</span>
+              <span style="color:#0ea5e9">Decomposers (2%)</span>
+            </div>
+            <div class="ecosystem-bar">
+              <div class="eco-segment" style="width: 12%; background: #f43f5e;"></div>
+              <div class="eco-segment" style="width: 14%; background: #a855f7;"></div>
+              <div class="eco-segment" style="width: 34%; background: #e2b85c;"></div>
+              <div class="eco-segment" style="width: 38%; background: #10b981;"></div>
+              <div class="eco-segment" style="width: 2%; background: #0ea5e9;"></div>
+            </div>
+          </div>
+
+          <!-- Spotlight Card -->
+          <div class="glass-card col-4">
+            <h3>Species Spotlight</h3>
+            <div id="spotlight-container" style="margin-top: 12px;">
+              <h4 id="spotlight-name" style="color: var(--secondary);">African Lion</h4>
+              <p id="spotlight-desc" style="font-size: 13px; color: var(--text-muted); margin-top: 6px; line-height: 1.4;">
+                Loading featured species details...
+              </p>
+              <button class="control-btn" id="spotlight-view-btn" style="margin-top: 14px;">
+                <i data-lucide="eye"></i> View Profile
+              </button>
+            </div>
+          </div>
+
+          <!-- Quick Actions & Alerts -->
+          <div class="glass-card col-12">
+            <h3>Recent Park Alerts & Broadcasts</h3>
+            <div style="margin-top: 14px; display: flex; flex-direction: column; gap: 12px;" id="dashboard-alerts">
+              <!-- Alert rows injected by app.js -->
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 2. ANIMAL DIRECTORY VIEW -->
+      <section id="animals-view" class="view-panel">
+        <div class="section-header">
+          <h2>Animal Directory</h2>
+          <p>Browse through the 50 types of species, filter by biome or trophic tier, and view individual metrics.</p>
+        </div>
+
+        <div class="directory-controls">
+          <div class="search-input-wrapper">
+            <i data-lucide="search"></i>
+            <input type="text" class="search-bar" id="species-search" placeholder="Search by name, scientific classification, or keyword...">
+          </div>
+          
+          <select class="filter-select" id="filter-biome">
+            <option value="all">All Biomes</option>
+            <option value="savannah">Savannah Grasslands</option>
+            <option value="forest">Northern Pine Forest</option>
+            <option value="wetland">Reptile & Insect Wetland</option>
+            <option value="cliffs">Aviary Mountain Cliffs</option>
+            <option value="aquatic">Aquatic Estuary & Oceans</option>
+          </select>
+
+          <select class="filter-select" id="filter-trophic">
+            <option value="all">All Trophic Levels</option>
+            <option value="Apex Predator">Apex Predator</option>
+            <option value="Tertiary Consumer">Tertiary Consumer</option>
+            <option value="Secondary Consumer">Secondary Consumer</option>
+            <option value="Primary Consumer">Primary Consumer</option>
+            <option value="Decomposer">Decomposer</option>
+          </select>
+
+          <select class="filter-select" id="filter-diet">
+            <option value="all">All Diets</option>
+            <option value="Carnivore">Carnivore</option>
+            <option value="Herbivore">Herbivore</option>
+            <option value="Omnivore">Omnivore</option>
+            <option value="Insectivore">Insectivore</option>
+            <option value="Detritivore">Detritivore</option>
+          </select>
+        </div>
+
+        <!-- Directory Grid -->
+        <div class="animal-grid" id="animal-directory-grid">
+          <!-- 50 Animal Cards injected here by JS -->
+        </div>
+      </section>
+
+      <!-- 3. 3D FOOD CHAIN VIEW -->
+      <section id="foodchain-view" class="view-panel">
+        <div class="section-header">
+          <h2>3D Food Chain Sandbox</h2>
+          <p>Interactive 3D representation of the trophic web. Drag to rotate, zoom to explore, and click on nodes to examine relationships.</p>
+        </div>
+
+        <div class="foodchain-layout">
+          <!-- 3D Canvas Box -->
+          <div class="canvas-3d-wrapper">
+            <div class="canvas-controls-overlay">
+              <button class="control-btn" id="btn-reset-cam"><i data-lucide="refresh-cw"></i> Reset View</button>
+              <button class="control-btn" id="btn-toggle-auto"><i data-lucide="play"></i> Toggle Rotate</button>
+            </div>
+            <div id="foodchain-canvas-container" style="width: 100%; height: 100%;"></div>
+          </div>
+
+          <!-- Selection details panel -->
+          <div class="foodchain-detail-panel">
+            <div class="glass-card" id="foodchain-node-details">
+              <h3>Trophic Node Detail</h3>
+              <p style="font-size: 13px; color: var(--text-muted); margin-top: 10px; line-height: 1.5;">
+                Click any node in the 3D web structure to inspect its predators and prey relationships.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 4. INTERACTIVE PARK MAP VIEW -->
+      <section id="map-view" class="view-panel">
+        <div class="section-header">
+          <h2>Interactive Sanctuary Geography</h2>
+          <p>A geographic telemetry map of Wild Park. Click on habitats to list species residing in that zone.</p>
+        </div>
+
+        <div class="map-layout">
+          <!-- Interactive Map Container -->
+          <div class="map-container" id="svg-map-container">
+            <!-- SVG map injected here by map.js -->
+          </div>
+
+          <!-- Sidebar details of biome -->
+          <div class="map-legend">
+            <div class="glass-card" id="map-details-card">
+              <h3>Map Telemetry</h3>
+              <p style="font-size: 13px; color: var(--text-muted); margin-top: 8px;">
+                Hover or click on any biome zone (colored sectors) or individual animal pins to track details.
+              </p>
+            </div>
+            <div class="glass-card">
+              <h3>Biome Legends</h3>
+              <div style="margin-top: 12px; display: flex; flex-direction: column; gap: 8px;">
+                <div class="legend-item">
+                  <div class="legend-color" style="background: #e2b85c;"></div>
+                  <span style="font-size: 13px;">Savannah Grasslands</span>
+                </div>
+                <div class="legend-item">
+                  <div class="legend-color" style="background: #3d7e5a;"></div>
+                  <span style="font-size: 13px;">Northern Pine Forest</span>
+                </div>
+                <div class="legend-item">
+                  <div class="legend-color" style="background: #2d6a4f;"></div>
+                  <span style="font-size: 13px;">Reptile Wetland</span>
+                </div>
+                <div class="legend-item">
+                  <div class="legend-color" style="background: #6c757d;"></div>
+                  <span style="font-size: 13px;">Aviary Mountain Cliffs</span>
+                </div>
+                <div class="legend-item">
+                  <div class="legend-color" style="background: #0077b6;"></div>
+                  <span style="font-size: 13px;">Aquatic Estuary</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 5. TICKET BOOKING VIEW -->
+      <section id="booking-view" class="view-panel">
+        <div class="section-header">
+          <h2>Plan Your Visit</h2>
+          <p>Secure entry tickets to Wild Park and explore transit options from nearby transportation terminals.</p>
+        </div>
+
+        <div class="booking-form-grid">
+          <!-- Ticket Form -->
+          <div class="glass-card">
+            <h3>Book Admission Tickets</h3>
+            <form id="booking-form" style="margin-top: 18px;" onsubmit="return false;">
+              <div class="form-group">
+                <label for="visitor-name">Visitor Representative Name</label>
+                <input type="text" id="visitor-name" class="form-control" placeholder="e.g. John Doe" required>
+              </div>
+
+              <div class="form-group">
+                <label for="visit-date">Date of Visit</label>
+                <input type="date" id="visit-date" class="form-control" required>
+              </div>
+
+              <div style="display: flex; gap: 16px; margin-top: 12px;">
+                <div class="form-group" style="flex: 1;">
+                  <label>Adult Tickets ($25)</label>
+                  <div class="counter-container">
+                    <button class="counter-btn" type="button" onclick="decrementCounter('adults')">-</button>
+                    <span id="counter-adults" style="font-weight:600; font-size:16px;">1</span>
+                    <button class="counter-btn" type="button" onclick="incrementCounter('adults')">+</button>
+                  </div>
+                </div>
+                
+                <div class="form-group" style="flex: 1;">
+                  <label>Child Tickets ($12)</label>
+                  <div class="counter-container">
+                    <button class="counter-btn" type="button" onclick="decrementCounter('children')">-</button>
+                    <span id="counter-children" style="font-weight:600; font-size:16px;">0</span>
+                    <button class="counter-btn" type="button" onclick="incrementCounter('children')">+</button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label>Add-on: Guided Safari Tour (+$35/group)</label>
+                <div class="counter-container">
+                  <span style="font-size: 13px;">Include Private Open-Top Jeep Tour</span>
+                  <input type="checkbox" id="add-on-guide" style="width:20px; height:20px; accent-color: var(--primary);">
+                </div>
+              </div>
+
+              <button class="btn-primary" style="width: 100%; margin-top: 12px;" id="btn-generate-ticket">
+                <i data-lucide="credit-card"></i> Proceed to Virtual Checkout
+              </button>
+            </form>
+          </div>
+
+          <!-- Virtual Ticket Preview -->
+          <div class="virtual-ticket-wrapper" id="ticket-preview-box">
+            <div class="ticket-header">
+              <div>
+                <h4>WILD PARK ENTRY PASS</h4>
+                <span style="font-size:10px; color:var(--text-muted);">TELEMETRY SECURE ID</span>
+              </div>
+              <i data-lucide="qr-code" style="color: var(--primary);"></i>
+            </div>
+            
+            <div class="ticket-body">
+              <div class="ticket-row">
+                <div>
+                  <span style="font-size: 10px; color: var(--text-muted); display: block;">VISITOR</span>
+                  <strong id="ticket-out-name">John Doe</strong>
+                </div>
+                <div>
+                  <span style="font-size: 10px; color: var(--text-muted); display: block;">DATE</span>
+                  <strong id="ticket-out-date">2026-06-21</strong>
+                </div>
+              </div>
+
+              <div class="ticket-row" style="margin-top: 8px;">
+                <div>
+                  <span style="font-size: 10px; color: var(--text-muted); display: block;">ATTENDEES</span>
+                  <span id="ticket-out-attendees" style="font-size: 13px; font-weight: 500;">1 Adult, 0 Children</span>
+                </div>
+                <div>
+                  <span style="font-size: 10px; color: var(--text-muted); display: block;">ADD-ONS</span>
+                  <span id="ticket-out-guide" style="font-size: 13px; font-weight: 500;">None</span>
+                </div>
+              </div>
+
+              <div class="ticket-row" style="margin-top: 12px; border-top: 1px dashed rgba(255,255,255,0.1); padding-top: 10px;">
+                <span style="font-weight: 600; color: var(--secondary);">TOTAL PAID:</span>
+                <strong id="ticket-out-total" style="font-size: 18px; color: var(--primary);">$25.00</strong>
+              </div>
+            </div>
+
+            <div class="ticket-barcode">
+              <svg class="barcode-svg" id="barcode-elem">
+                <!-- Programmatic Barcode lines will be drawn here -->
+              </svg>
+              <span class="barcode-num">WP-TKT-202606-9810</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Transit Navigation Maps Section -->
+        <h3 style="margin-top: 40px; margin-bottom: 12px;">Directions & Transit Connections</h3>
+        <p style="font-size: 14px; color: var(--text-muted); margin-bottom: 20px;">
+          Choose your arrival station to see a dynamic transit connection map and detailed travel times.
+        </p>
+
+        <div class="directory-controls">
+          <label style="font-size: 13px; font-weight:600; text-transform:uppercase;">Arrival Hub:</label>
+          <select class="filter-select" id="transit-selector">
+            <option value="railway">Wild Park Central Railway Station (20 km away)</option>
+            <option value="bus">Wild Park Main Bus Terminal (12 km away)</option>
+          </select>
+        </div>
+
+        <div class="transit-grid">
+          <div class="transit-map-box" id="transit-route-map">
+            <!-- Transit SVG route Map will be injected by booking.js -->
+          </div>
+          <div class="glass-card">
+            <h4 id="transit-title">Route from Railway Station</h4>
+            <div id="transit-summary" style="font-size: 13px; margin-top: 8px; color: var(--secondary); font-weight: 500;">
+              Travel Time: 25 minutes via Highway 4 shuttle bus
+            </div>
+            <ul class="transit-steps" id="transit-instructions">
+              <!-- Steps injected here -->
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- 6. ADOPT & DONATE VIEW -->
+      <section id="adopt-view" class="view-panel">
+        <div class="section-header">
+          <h2>Adoption & Donation Hub</h2>
+          <p>Directly support wildlife preservation by adopting a named animal or donating to the sanctuary medical funds.</p>
+        </div>
+
+        <div class="adopt-donation-layout">
+          <!-- General Donation Panel -->
+          <div class="glass-card">
+            <h3>Sanctuary Medical & Feeding Donation</h3>
+            <p style="font-size: 13px; color: var(--text-muted); margin-top: 8px; line-height: 1.5;">
+              Every donation helps supply food, maintain clean environments, and cover veterinarian treatments for our 50 resident species.
+            </p>
+            
+            <form id="donation-form" style="margin-top: 20px;" onsubmit="return false;">
+              <div class="form-group">
+                <label>Select Donation Amount</label>
+                <div style="display: flex; gap: 12px; margin-bottom: 12px;">
+                  <button type="button" class="btn-secondary" onclick="selectDonation(25)" style="padding: 10px;">$25</button>
+                  <button type="button" class="btn-secondary" onclick="selectDonation(50)" style="padding: 10px;">$50</button>
+                  <button type="button" class="btn-secondary" onclick="selectDonation(100)" style="padding: 10px;">$100</button>
+                  <button type="button" class="btn-secondary" onclick="selectDonation(250)" style="padding: 10px;">$250</button>
+                </div>
+                <input type="number" id="custom-donation" class="form-control" placeholder="Enter custom amount ($)" min="5" value="50">
+              </div>
+
+              <div class="form-group">
+                <label for="donor-name">Donor Name</label>
+                <input type="text" id="donor-name" class="form-control" placeholder="e.g. Jane Doe" required>
+              </div>
+
+              <div class="form-group">
+                <label for="donation-target">Support Area</label>
+                <select class="form-control" id="donation-target">
+                  <option value="general">General Habitat Conservation</option>
+                  <option value="medical">Veterinary Medicine & ICU Care</option>
+                  <option value="feeding">Fresh Diet & Feeding Supplies</option>
+                  <option value="nursery">Species Breeding & Nursery</option>
+                </select>
+              </div>
+
+              <button class="btn-primary" style="width: 100%; margin-top: 12px;" id="btn-submit-donation">
+                <i data-lucide="heart"></i> Sponsor Sanctuary Fund
+              </button>
+            </form>
+          </div>
+
+          <!-- Adoption Info Board -->
+          <div class="glass-card">
+            <h3>Animal Sponsorship & Adoption</h3>
+            <p style="font-size: 13px; color: var(--text-muted); margin-top: 8px; line-height: 1.5;">
+              Adopting an animal establishes a direct sponsorship. You receive a certification plaque, monthly health updates, and camera access to their habitat.
+            </p>
+            
+            <div style="margin-top: 16px; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 16px;">
+              <h4 style="font-size: 14px; color: var(--secondary);">How to Adopt:</h4>
+              <ol style="margin-left: 20px; font-size: 13px; color: var(--text-muted); line-height: 1.6; margin-top: 8px;">
+                <li>Go to the <strong style="color: var(--text-highlight); cursor: pointer;" onclick="document.querySelector('[data-target=animals-view]').click()">Animal Directory</strong>.</li>
+                <li>Search or select a species (e.g. Reticulated Giraffe).</li>
+                <li>Open their profile to view the individual animal listings.</li>
+                <li>Click the <strong>Adopt</strong> button next to a specific named individual (e.g. "Melman").</li>
+              </ol>
+            </div>
+
+            <div style="margin-top: 24px; background: rgba(226, 184, 92, 0.05); border: 1px dashed var(--secondary); border-radius: 12px; padding: 14px;">
+              <h4 style="font-size: 13px; color: var(--secondary); display: flex; align-items: center; gap: 8px;">
+                <i data-lucide="award"></i> Certified Supporter
+              </h4>
+              <p style="font-size: 12px; color: var(--text-muted); margin-top: 4px; line-height: 1.4;">
+                All sponsorships are simulated for educational demonstration. Generating an adoption pass will download a virtual certificate frame containing your animal details!
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Detailed overlay sidebar for selected animal (injected in body) -->
+      <div class="animal-detail-overlay" id="animal-detail-sidebar">
+        <div class="detail-header">
+          <h2 id="detail-title">Species Details</h2>
+          <button class="close-detail-btn" id="btn-close-detail">&times;</button>
+        </div>
+        <div class="detail-scroll-content">
+          <!-- 3D Canvas Box -->
+          <div class="detail-3d-canvas-container">
+            <div class="canvas-controls-overlay">
+              <button class="control-btn" id="btn-spin-detail" title="Spin model"><i data-lucide="rotate-3d"></i></button>
+            </div>
+            <div id="detail-3d-canvas" style="width: 100%; height: 100%;"></div>
+          </div>
+
+          <div class="detail-meta-grid">
+            <div class="meta-field">
+              <label>Scientific Name</label>
+              <span id="detail-scientific">-</span>
+            </div>
+            <div class="meta-field">
+              <label>Trophic Level</label>
+              <span id="detail-trophic">-</span>
+            </div>
+            <div class="meta-field">
+              <label>Zone / Biome</label>
+              <span id="detail-biome">-</span>
+            </div>
+            <div class="meta-field">
+              <label>Ecosystem Diet</label>
+              <span id="detail-diet">-</span>
+            </div>
+            <div class="meta-field">
+              <label>Daily Food Needs</label>
+              <span id="detail-food">-</span>
+            </div>
+            <div class="meta-field">
+              <label>Species Population</label>
+              <span id="detail-population">-</span>
+            </div>
+          </div>
+
+          <h3>Assigned Keeper</h3>
+          <div class="caretaker-card" id="detail-caretaker">
+            <div class="caretaker-avatar"><i data-lucide="shield"></i></div>
+            <div class="caretaker-info">
+              <h4>-</h4>
+              <p>-</p>
+            </div>
+          </div>
+
+          <h3>Species Synopsis</h3>
+          <p id="detail-description" style="font-size: 13px; color: var(--text-muted); line-height: 1.5; margin-bottom: 20px;">
+            -
+          </p>
+
+          <h3 style="margin-bottom: 10px;">Individual Registers</h3>
+          <div class="individuals-list" id="detail-individuals-container">
+            <!-- Individual rows injected here by app.js -->
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- Adoption Checkout Modal -->
+  <div class="adopt-backdrop" id="adopt-backdrop"></div>
+  <div class="adopt-modal" id="adopt-modal">
+    <h3 style="text-align: center; color: var(--secondary); margin-bottom: 8px;">Adoption Registry Approved!</h3>
+    <p style="text-align: center; font-size: 13px; color: var(--text-muted); margin-bottom: 16px;">
+      You have successfully sponsored this individual animal. Here is your official certificate:
+    </p>
+    
+    <div class="certificate-card" id="certificate-card-content">
+      <h5>WILD PARK SANCTUARY</h5>
+      <p style="font-size: 10px; font-weight:600; text-transform:uppercase; letter-spacing:1px; margin-top: 4px; color:#5c4d37;">
+        Official Certificate of Adoption
+      </p>
+      <p style="font-size: 12px; margin-top: 14px; font-style:italic;">
+        This is proudly presented to
+      </p>
+      <strong style="font-size: 18px; color: #1a3325; font-family: serif; display:block; margin: 4px 0;" id="cert-donor-name">Jane Doe</strong>
+      <p style="font-size: 12px; margin-top: 8px; font-style:italic;">
+        for the honorary sponsorship of
+      </p>
+      <strong style="font-size: 20px; color: #8c6d3f; font-family: serif; display:block; margin: 4px 0;" id="cert-animal-title">Simba the Lion</strong>
+      <p style="font-size: 10px; color:#6b5d49; margin-top: 12px;">
+        Registered tag number: <span id="cert-animal-tag" style="font-family: monospace; font-weight:600;">WP-001</span>
+      </p>
+      <div style="border-top: 1px solid rgba(140, 109, 63, 0.2); margin-top: 16px; padding-top: 8px; font-size: 9px; color:#6b5d49;">
+        Authorized by Wild Park Wildlife Commission &bull; <span id="cert-date">2026-06-20</span>
+      </div>
+    </div>
+
+    <button class="btn-primary" style="width: 100%; margin-top: 20px;" id="btn-close-adopt-modal">
+      Done
+    </button>
+  </div>
+
+  <!-- Load ES Modules logic -->
+  <script type="module" src="js/app.js"></script>
+
+  <script>
+    // These functions must be global because they are called via inline HTML events.
+    // They redirect variables to modular controllers.
+    function incrementCounter(type) {
+      window.appBooking && window.appBooking.increment(type);
+    }
+    function decrementCounter(type) {
+      window.appBooking && window.appBooking.decrement(type);
+    }
+    function selectDonation(amount) {
+      const input = document.getElementById('custom-donation');
+      if (input) input.value = amount;
+    }
+  </script>
+
+</body>
+</html>
